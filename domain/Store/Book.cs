@@ -8,6 +8,7 @@ public class Book
 
     public Book (int id, string title)
     {
+        Id = id;
         Title = title;
     }
 }
