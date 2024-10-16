@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,9 @@ namespace Store
 {
     public interface IBookRepository
     {
-        Book[] GetAllByTitle(string titlePart);
+
+        Book[] GetAllByIsbn(string isbn);
+
+        Book[] GetAllByTitleOrAuthor(string titleOrAuthor);
     }
 }
