@@ -16,7 +16,7 @@ namespace Store.Web.Controllers
 
             var books = bookService.GetAllByQuery(query);
 
-            return View(books);
+            return View("Index",books);
         } 
     }
 }
