@@ -17,50 +17,36 @@ namespace Store.Web
             using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
             {
-                writer.Write(value.Items.Count);
+                writer.Write(value.OrderId);
+                writer.Write(value.TotalCount);
+                writer.Write(value.TotalPrice);
 
-                foreach (var item in value.Items)
-                {
-                    writer.Write(item.Key);
-                    writer.Write(item.Value);
-                }
-
-                writer.Write(value.Amount);
                 session.Set(key, stream.ToArray());
             }
         }
 
-        public static bool TryGetCart(this ISession session, out Cart? value)
+        public static bool TryGetCart(this ISession session, out Cart value)
         {
-            value = null;
-
-          
-                if (session.TryGetValue(key, out byte[]? buffer) && buffer != null && buffer.Length > 0)
+            if (session.TryGetValue(key, out byte[]? buffer) && buffer != null && buffer.Length > 0)
+            {
+                using (var stream = new MemoryStream(buffer))
+                using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
                 {
-                    using (var stream = new MemoryStream(buffer)) // Передаем buffer в MemoryStream
-                    using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
+                    var orderId = reader.ReadInt32();
+                    var totalCount = reader.ReadInt32();
+                    var totalPrice = reader.ReadDecimal();
+
+                    value = new Cart(orderId)
                     {
-                        value = new Cart();
+                        TotalCount = totalCount,
+                        TotalPrice = totalPrice
+                    };
 
-                        // Считываем длину элементов
-                        var length = reader.ReadInt32();
-
-                        for (int i = 0; i < length; i++)
-                        {
-                            var bookId = reader.ReadInt32();
-                            var count = reader.ReadInt32();
-
-                            value.Items.Add(bookId, count);
-                        }
-
-                        // Считываем общую сумму
-                        value.Amount = reader.ReadDecimal();
-
-                        return true;
-                    }
+                    return true;
                 }
-            
+            }
 
+            value = null;
             return false;
         }
     }
